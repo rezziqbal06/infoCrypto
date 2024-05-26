@@ -2,7 +2,7 @@
   <ion-page>
     <ion-header :translucent="true">
       <ion-toolbar>
-        <ion-title>Inbox</ion-title>
+        <ion-title>Info Crypto</ion-title>
       </ion-toolbar>
     </ion-header>
 
@@ -13,12 +13,12 @@
 
       <ion-header collapse="condense">
         <ion-toolbar>
-          <ion-title size="large">Inbox</ion-title>
+          <ion-title size="large">Info Crypto</ion-title>
         </ion-toolbar>
       </ion-header>
 
       <ion-list>
-        <MessageListItem v-for="message in messages" :key="message.id" :message="message" />
+        <CryptoListItem v-for="crypto in cryptos" :key="crypto.id" :crypto="crypto" />
       </ion-list>
     </ion-content>
   </ion-page>
@@ -35,15 +35,29 @@ import {
   IonTitle,
   IonToolbar,
 } from '@ionic/vue';
-import MessageListItem from '@/components/MessageListItem.vue';
-import { getMessages, Message } from '@/data/messages';
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
+import { Crypto } from '@/data/cryptos';
+import EndPointAccess from '@/services/EndPointAccess';
+import CryptoListItem from '@/components/CryptoListItem.vue';
 
-const messages = ref<Message[]>(getMessages());
+const cryptos = ref<Crypto[]>([])
+
+const ambilData = async () => {
+  const resData = new EndPointAccess('https://api.coinlore.net/api/tickers/');
+  const response = await resData.getRes();
+  cryptos.value = response.data.data;
+  console.log(response.data.data,'cryptos')
+};
 
 const refresh = (ev: CustomEvent) => {
   setTimeout(() => {
+    ambilData();
     ev.detail.complete();
-  }, 3000);
+  }, 1000);
 };
+
+onMounted(() => {
+  ambilData();
+});
+
 </script>
